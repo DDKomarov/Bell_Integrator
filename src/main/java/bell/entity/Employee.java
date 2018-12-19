@@ -24,13 +24,17 @@ public class Employee {
     @JoinColumn(name = "doc_id")
     private Document documentId;
 
-    @OneToOne(cascade =CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "citizenship_id")
     private Countries countriesId;
 
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, targetEntity = Office.class)
-    @JoinColumn(name = "office_id")
+    @ManyToMany
+    @JoinTable(
+            name = "employees",
+            joinColumns = {@JoinColumn(name = "employee_id")},
+            inverseJoinColumns = {@JoinColumn(name = "office_id")}
+    )
     private Office officeId;
 
     @NotNull

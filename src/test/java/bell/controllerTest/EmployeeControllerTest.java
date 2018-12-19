@@ -6,12 +6,14 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -21,7 +23,7 @@ import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-//@WithUserDetails("admin")
+@AutoConfigureMockMvc
 public class EmployeeControllerTest {
     private static String urlList = "api/employee/list";
     private static String urlSave = "api/employee/save";
@@ -33,20 +35,12 @@ public class EmployeeControllerTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    @Autowired
-    private EmployeeRepository repository;
-
-    @After
-    public void resetDB() {
-        repository.deleteAll();
-        repository.flush();
-    }
 
     @Test
     public void saveTestEnt() throws Exception {
         Employee employee = createEmpl("Name");
-//        ResponseEntity<Employee> response = restTemplate.postForEntity(urlSave, employee, Employee.class);
-        restTemplate.postForObject(urlSave, employee, Employee.class);
+        ResponseEntity<Employee> response = restTemplate.postForEntity(urlSave, employee, Employee.class);
+        employee = response.getBody();
         assertThat(employee.getId(), is(1));
         assertThat(employee.getEmployeeData().getFirstName(), is("Name"));
 
@@ -94,16 +88,17 @@ public class EmployeeControllerTest {
         employee.setCountriesId(new Countries());
         employee.setDocumentId(new Document());
 
-        restTemplate.postForObject(urlUpdate, employee, Employee.class);
+        ResponseEntity<Employee> response = restTemplate.postForEntity(urlSave, employee, Employee.class);
 
+        employee = response.getBody();
         assertThat(employee.getId(), is(1));
-        assertThat(data.getFirstName(),is("name1"));
+        assertThat(data.getFirstName(), is("name1"));
     }
 
     @Test
     public void getByIdTestEnt() throws Exception {
         Employee employee = createEmpl("Name");
-        restTemplate.getForObject(urlId, Employee.class, employee.getId());
+        restTemplate.getForEntity(urlId, Employee.class, employee.getId());
 
         assertThat(employee.getId(), is(1));
         assertThat(employee.getEmployeeData().getFirstName(), is("Name"));
@@ -126,7 +121,6 @@ public class EmployeeControllerTest {
         employee.setOfficeId(new Office());
         employee.setCountriesId(new Countries());
         employee.setDocumentId(new Document());
-        repository.save(employee);
         return employee;
     }
 

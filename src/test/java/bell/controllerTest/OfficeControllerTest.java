@@ -38,20 +38,12 @@ public class OfficeControllerTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    @Autowired
-    private OfficeRepository repository;
-
-    @After
-    public void resetDB() {
-        repository.deleteAll();
-        repository.flush();
-    }
 
     @Test
     public void saveTestEnt() throws Exception {
         Office office = createOffice("Name");
-//        ResponseEntity<Employee> response = restTemplate.postForEntity(urlSave, office, Employee.class);
-        restTemplate.postForObject(urlSave, office, Employee.class);
+        ResponseEntity<Office> response = restTemplate.postForEntity(urlSave, office, Office.class);
+        office = response.getBody();
 
         assertThat(office.getId(), is(1));
         assertThat(office.getName(), is("Name"));
@@ -96,7 +88,9 @@ public class OfficeControllerTest {
         office1.setActive(true);
         office1.setPhone("212341");
         office1.setAddress("New Some Address");
-        restTemplate.postForObject(urlUpdate, office1, Employee.class);
+        ResponseEntity<Office> response = restTemplate.postForEntity(urlSave, office1, Office.class);
+        office1 = response.getBody();
+
 
         assertThat(office1.getId(), is(1));
         assertThat(office1.getName(), is("Name1"));
@@ -105,7 +99,7 @@ public class OfficeControllerTest {
     @Test
     public void getByIdTestEnt() throws Exception {
         Office office = createOffice("Name");
-        restTemplate.getForObject(urlId, Employee.class, office.getId());
+        restTemplate.getForEntity(urlId, Office.class, office.getId());
 
         assertThat(office.getId(), is(1));
     }
@@ -118,7 +112,6 @@ public class OfficeControllerTest {
         office.setAddress("Some Address");
         office.setOrganization(new Organization());
         office.setEmployeeList(new ArrayList<>());
-        repository.save(office);
         return office;
     }
 

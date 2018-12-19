@@ -37,22 +37,12 @@ public class OrganizationControllerTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    @Autowired
-    private OrganizationRepository repository;
-
-
-    @After
-    public void resetDB() {
-        repository.deleteAll();
-        repository.flush();
-    }
 
     @Test
     public void saveTestEnt() throws Exception {
         Organization organization = createOrganization("Name");
-//        ResponseEntity<Employee> response = restTemplate.postForEntity(urlSave, organization, Employee.class);
-        restTemplate.postForObject(urlSave, organization, Employee.class);
-
+        ResponseEntity<Organization> response = restTemplate.postForEntity(urlSave, organization, Organization.class);
+        organization = response.getBody();
         assertThat(organization.getId(), is(1));
         assertThat(organization.getName(), is("Name"));
         assertThat(organization.getAddress(), is("Some Address"));
@@ -96,11 +86,13 @@ public class OrganizationControllerTest {
         organization1.setAddress("New Some Address");
         organization1.setInn(222113);
         organization1.setKpp(321);
-        restTemplate.postForObject(urlUpdate, organization1, Employee.class);
+
+        ResponseEntity<Organization> response = restTemplate.postForEntity(urlSave, organization1, Organization.class);
+        organization1 = response.getBody();
 
         assertThat(organization1.getId(), is(1));
 //        assertNotEquals("Name",organization1.getName());
-        assertThat(organization1.getName(),is("Name1"));
+        assertThat(organization1.getName(), is("Name1"));
 
 
     }
@@ -122,7 +114,6 @@ public class OrganizationControllerTest {
         organization.setKpp(123);
         organization.setInn(1122333);
         organization.setOffices(new ArrayList<>());
-        repository.save(organization);
         return organization;
     }
 

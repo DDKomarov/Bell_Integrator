@@ -35,7 +35,7 @@ public class Office {
     private boolean active;
 
     @NotNull
-    @OneToMany(mappedBy = "officeId", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "officeId", cascade = CascadeType.ALL)
     private List<Employee> employeeList;
 
     @ManyToOne(cascade = CascadeType.ALL)
